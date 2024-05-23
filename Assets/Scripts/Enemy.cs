@@ -10,6 +10,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private GameObject _enemyLaserPrefab;
     private float _fireRate = 3f;
     private float _canFire = -1f;
+    private bool _isAlive = true;
 
     private void Start()
     {
@@ -38,16 +39,19 @@ public class Enemy : MonoBehaviour
     {
         CalculateMovement();
 
-        if (Time.time > _canFire)
+        if (_isAlive == true)
         {
-            _fireRate = Random.Range(3f, 7f);
-            _canFire = Time.time + _fireRate;
-            GameObject enemyLaser = Instantiate(_enemyLaserPrefab, transform.position, Quaternion.identity);
-            Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
-
-            for (int i = 0; i < lasers.Length; i++)
+            if (Time.time > _canFire)
             {
-                lasers[i].AssignEnemyLaser();
+                _fireRate = Random.Range(3f, 7f);
+                _canFire = Time.time + _fireRate;
+                GameObject enemyLaser = Instantiate(_enemyLaserPrefab, transform.position, Quaternion.identity);
+                Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
+
+                for (int i = 0; i < lasers.Length; i++)
+                {
+                    lasers[i].AssignEnemyLaser();
+                }
             }
         }
     }
@@ -71,11 +75,7 @@ public class Enemy : MonoBehaviour
             {
                 _player.Damage();
             }
-            _animator.SetTrigger("OnEnemyDeath");
-            _explosionSound.Play();
-            _speed = 0;
-            Destroy(GetComponent<Collider2D>());
-            Destroy(gameObject, 2.8f);
+            HandleEnemyDeath();
         }
 
         if (other.gameObject.tag == "Laser")
@@ -85,11 +85,26 @@ public class Enemy : MonoBehaviour
             {
                 _player.AddScore(10);
             }
-            _animator.SetTrigger("OnEnemyDeath");
-            _explosionSound.Play();
-            _speed = 0;
-            Destroy(GetComponent<Collider2D>());
-            Destroy(gameObject, 2.8f);
+            HandleEnemyDeath();
         }
+
+        if (other.gameObject.tag == "Piercing Laser")
+        {
+            if (_player != null)
+            {
+                _player.AddScore(10);
+            }
+            HandleEnemyDeath();
+        }
+    }
+
+    private void HandleEnemyDeath()
+    {
+        _isAlive = false;
+        _animator.SetTrigger("OnEnemyDeath");
+        _explosionSound.Play();
+        _speed = 0;
+        Destroy(GetComponent<Collider2D>());
+        Destroy(gameObject, 2.8f);
     }
 }

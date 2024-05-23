@@ -19,8 +19,6 @@ public class Powerup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float randomX = Random.Range(-9.26f, 9.26f);
-
         transform.Translate(Vector3.down * _speed * Time.deltaTime);
 
         if (transform.position.y <= -6.25)
@@ -46,6 +44,15 @@ public class Powerup : MonoBehaviour
                         break;
                     case 2:
                         player.ShieldActive();
+                        break;
+                    case 3:
+                        player.AmmoRefill();
+                        break;
+                    case 4:
+                        player.HealthPowerUp();
+                        break;
+                    case 5:
+                        player.PiercingShotActive();
                         break;
                     default:
                         Debug.Log("default value");
