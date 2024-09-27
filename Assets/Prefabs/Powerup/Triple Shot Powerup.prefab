@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -4301062518054203459}
   m_Layer: 0
   m_Name: Triple Shot Powerup
-  m_TagString: Untagged
+  m_TagString: Pickup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -145,6 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 3
+  _powerupID: 0
 --- !u!95 &-4301062518054203459
 Animator:
   serializedVersion: 3

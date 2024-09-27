@@ -17,6 +17,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float _tripleShotCoolDownTime = 5f;
     private bool _isSpeedBoostActive = false;
     [SerializeField] private float _speedBoostCoolDownTime = 5f;
+    private bool _isSpeedDecreaseActive = false;
+    [SerializeField] private float _speedDecreaseCoolDownTime = 5f;
     private bool _isShieldActive = false;
     [SerializeField] private GameObject _shieldVisuals;
     [SerializeField] private int _score;
@@ -26,14 +28,15 @@ public class Player : MonoBehaviour
     private AudioSource _explosionSound;
     private int _shieldHealth = 0;
     [SerializeField] private SpriteRenderer _shieldColor;
-    [SerializeField] private int _ammoCount = 15;
+    [SerializeField] private int _ammoCount = 20;
     private AudioSource _noAmmoSound;
     [SerializeField] private GameObject _piercingLaserPrefab;
     private bool _isPiercingShotActive = false;
     [SerializeField] private float _piercingShotCoolDownTime = 5f;
     [SerializeField] private Scrollbar _thrusterBar;
     private Animator _camera_Shake;
-
+    private bool _isHomingShotActive = false;
+    [SerializeField] private float _homingShotCoolDownTime = 5f;
 
 
     // Start is called before the first frame update
@@ -64,7 +67,7 @@ public class Player : MonoBehaviour
             Debug.LogError("Laser Shot Sound is NULL");
         }
 
-        if (_explosionSound == null) 
+        if (_explosionSound == null)
         {
             Debug.LogError("Explosion Sound is NULL");
         }
@@ -120,9 +123,13 @@ public class Player : MonoBehaviour
             transform.position = new Vector3(11.3f, transform.position.y, 0);
         }
 
-        if (_isSpeedBoostActive == true || Input.GetKey(KeyCode.LeftShift))
+        if (_isSpeedBoostActive == true || Input.GetKey(KeyCode.LeftShift) && _isSpeedDecreaseActive == false)
         {
             _speed = 10.0f;
+        }
+        else if (_isSpeedDecreaseActive == true)
+        {
+            _speed = 3.0f;
         }
         else
         {
@@ -137,17 +144,23 @@ public class Player : MonoBehaviour
 
         if (_isTripleShotActive == true)
         {
-            Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
+            Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, 1.05f, 0), Quaternion.identity);
         }
-        else if(_isPiercingShotActive == true)
+        else if (_isPiercingShotActive == true)
         {
             Instantiate(_piercingLaserPrefab, transform.position + new Vector3(0, 1.05f, 0), Quaternion.identity);
+        }
+        else if (_isHomingShotActive == true)
+        {
+            GameObject homingLaser = Instantiate(_laserPrefab, transform.position + new Vector3(0, 1.05f, 0), Quaternion.identity);
+            Laser lasers = homingLaser.GetComponent<Laser>();
+            lasers.AssignHomingLaser();
         }
         else if (_ammoCount >= 0)
         {
             Instantiate(_laserPrefab, transform.position + new Vector3(0, 1.05f, 0), Quaternion.identity);
         }
-        
+
 
         if (_ammoCount >= 0)
         {
@@ -166,7 +179,10 @@ public class Player : MonoBehaviour
 
         _camera_Shake.SetTrigger("Player Damaged");
 
-        _lives--;
+        if (_isShieldActive == false)
+        {
+            _lives--;
+        }
 
         if (_lives == 2)
         {
@@ -250,6 +266,18 @@ public class Player : MonoBehaviour
         _isSpeedBoostActive = false;
     }
 
+    public void SpeedDecreaseActive()
+    {
+        _isSpeedDecreaseActive = true;
+        StartCoroutine(SpeedDecreasePowerDownRoutine());
+    }
+
+    IEnumerator SpeedDecreasePowerDownRoutine()
+    {
+        yield return new WaitForSeconds(_speedDecreaseCoolDownTime);
+        _isSpeedDecreaseActive = false;
+    }
+
     public void ShieldActive()
     {
         _isShieldActive = true;
@@ -279,6 +307,19 @@ public class Player : MonoBehaviour
         {
             _rightEngine.SetActive(false);
         }
+    }
+
+    public void HomingShotActive()
+    {
+        _isHomingShotActive = true;
+        StartCoroutine(HomingShotPowerDown());
+        
+    }
+
+    IEnumerator HomingShotPowerDown()
+    {
+        yield return new WaitForSeconds(_homingShotCoolDownTime);
+        _isHomingShotActive = false;
     }
 
     public void AddScore(int points)

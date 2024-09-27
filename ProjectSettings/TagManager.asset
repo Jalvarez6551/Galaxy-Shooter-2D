@@ -7,6 +7,10 @@ TagManager:
   - Enemy
   - Laser
   - Piercing Laser
+  - Enemy Laser
+  - Pickup
+  - Dead
+  - Boss
   layers:
   - Default
   - TransparentFX
