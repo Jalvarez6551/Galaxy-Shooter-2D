@@ -11,6 +11,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image _livesImg;
     [SerializeField] private Text _gameOverText;
     [SerializeField] private Text _restartText;
+    [SerializeField] private Text _ammoText;
+    [SerializeField] private Text _waveText;
     private GameManager _gameManager;
 
     // Start is called before the first frame update
@@ -29,6 +31,21 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int playerScore)
     {
         _scoreText.text = "Score: " + playerScore.ToString();
+    }
+
+    public void UpdateAmmoCount(int ammoCount)
+    {
+        _ammoText.text = "Ammo: " + ammoCount.ToString();
+
+        if (ammoCount <= 0)
+        {
+            _ammoText.text = "Ammo: 0";
+        }
+    }
+
+    public void UpdateWaveCount(int waveCount)
+    {
+        _waveText.text = "Wave " + waveCount.ToString();
     }
 
     public void UpdateLives(int currentLives)

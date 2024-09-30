@@ -34,6 +34,8 @@ public class Player : MonoBehaviour
     private bool _isPiercingShotActive = false;
     [SerializeField] private float _piercingShotCoolDownTime = 5f;
     [SerializeField] private Scrollbar _thrusterBar;
+    private bool _canBoost = true;
+    [SerializeField] private float _boostCooldown;
     private Animator _camera_Shake;
     private bool _isHomingShotActive = false;
     [SerializeField] private float _homingShotCoolDownTime = 5f;
@@ -51,6 +53,7 @@ public class Player : MonoBehaviour
         _camera_Shake = GameObject.Find("Main Camera").GetComponent<Animator>();
 
         _uiManager.UpdateLives(_lives);
+        _uiManager.UpdateAmmoCount(_ammoCount);
 
         if (_spawnManager == null)
         {
@@ -87,19 +90,29 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateMovement();
+        _uiManager.UpdateAmmoCount(_ammoCount);
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
             FireLaser();
         }
 
-        if (_isSpeedBoostActive == true || Input.GetKey(KeyCode.LeftShift))
+        if (_isSpeedBoostActive == true)
+        {
+            _thrusterBar.size += 2f * Time.deltaTime;
+        }
+        else if (Input.GetKey(KeyCode.LeftShift) && _canBoost == true)
         {
             _thrusterBar.size += 2f * Time.deltaTime;
         }
         else
         {
             _thrusterBar.size -= 2f * Time.deltaTime;
+        }
+
+        if (_ammoCount >= 20)
+        {
+            _ammoCount = 20;
         }
     }
 
@@ -123,7 +136,7 @@ public class Player : MonoBehaviour
             transform.position = new Vector3(11.3f, transform.position.y, 0);
         }
 
-        if (_isSpeedBoostActive == true || Input.GetKey(KeyCode.LeftShift) && _isSpeedDecreaseActive == false)
+        if (_isSpeedBoostActive == true && _isSpeedDecreaseActive == false)
         {
             _speed = 10.0f;
         }
@@ -134,6 +147,15 @@ public class Player : MonoBehaviour
         else
         {
             _speed = 8.0f;
+        }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if (_canBoost == true)
+            {
+                _speed = 10.0f;
+                StartCoroutine(BoostCooldown());
+            }
         }
     }
 
@@ -230,9 +252,18 @@ public class Player : MonoBehaviour
         }
     }
 
+    IEnumerator BoostCooldown()
+    {
+        yield return new WaitForSeconds(_boostCooldown);
+        _canBoost = false;
+        yield return new WaitForSeconds(_boostCooldown);
+        _canBoost = true;
+    }
+
     public void TripleShotActive()
     {
         _isTripleShotActive = true;
+        _ammoCount += 10;
         StartCoroutine(TripleShotPowerDownRoutine());
     }
 
@@ -245,6 +276,7 @@ public class Player : MonoBehaviour
     public void PiercingShotActive()
     {
         _isPiercingShotActive = true;
+        _ammoCount += 10;
         StartCoroutine(PiercingShotPowerDownRouting());
     }
 
@@ -288,7 +320,8 @@ public class Player : MonoBehaviour
 
     public void AmmoRefill()
     {
-        _ammoCount = 15;
+        _ammoCount = 20;
+        _uiManager.UpdateAmmoCount(_ammoCount);
     }
 
     public void HealthPowerUp()
@@ -312,6 +345,7 @@ public class Player : MonoBehaviour
     public void HomingShotActive()
     {
         _isHomingShotActive = true;
+        _ammoCount += 10;
         StartCoroutine(HomingShotPowerDown());
         
     }

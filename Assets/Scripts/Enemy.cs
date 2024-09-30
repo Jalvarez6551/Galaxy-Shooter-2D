@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json.Bson;
-using System.Collections;
-using System.Net.Http.Headers;
-using UnityEditor;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -33,6 +30,7 @@ public class Enemy : MonoBehaviour
     public bool _isBoss = false;
     private int _bossHealth = 15;
     [SerializeField] private GameObject[] _bossLasers;
+    [SerializeField] private GameManager _gameManager;
 
     private void Start()
     {
@@ -192,6 +190,7 @@ public class Enemy : MonoBehaviour
         _animator.SetTrigger("OnEnemyDeath");
         _explosionSound.Play();
         _speed = 0;
+        _dodgeSpeed = 0;
         gameObject.tag = "Dead";
         Destroy(GetComponentInChildren<Collider2D>());
         Destroy(gameObject, 2.8f);

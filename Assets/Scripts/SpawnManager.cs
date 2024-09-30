@@ -5,8 +5,8 @@ using UnityEngine.UI;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject[] _enemyPrefab;
-    [SerializeField] private GameObject[] _PowerupPrefab;
-    [SerializeField] private GameObject[] _RarePowerupPrefab;
+    [SerializeField] private GameObject[] _powerupPrefab;
+    [SerializeField] private GameObject[] _rarePowerupPrefab;
     [SerializeField] private float _spawnTime;
     [SerializeField] private GameObject _enemyContainer;
     [SerializeField] private float _waveCoolDown = 3;
@@ -17,6 +17,12 @@ public class SpawnManager : MonoBehaviour
     private bool _stopSpawningEnemies = false;
     [SerializeField] private int _waveCount;
     [SerializeField] private GameObject _boss;
+    [SerializeField] private UIManager _uiManager;
+
+    private void Start()
+    {
+        _uiManager.UpdateWaveCount(_waveCount);
+    }
 
     private void Update()
     {
@@ -32,7 +38,7 @@ public class SpawnManager : MonoBehaviour
     }
 
     public void StartSpawning()
-    { 
+    {
         if (_waveCount == 5)
         {
             SpawnBoss();
@@ -57,7 +63,9 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(_waveCoolDown);
         if (_stopSpawningEnemies == true)
         {
+            StopAllCoroutines();
             _waveCount++;
+            _uiManager.UpdateWaveCount(_waveCount);
             _enemiesDestroyed = 0;
             _totalEnemyCount = 0;
             _enemiesInWave += 2;
@@ -90,9 +98,9 @@ public class SpawnManager : MonoBehaviour
             Vector3 randomSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 8, 0);
             int randomPowerUp = Random.Range(0, 5);
             yield return new WaitForSeconds(Random.Range(3, 8));
-            if (randomPowerUp < 2)
+            if (randomPowerUp < _powerupPrefab.Length)
             {
-                Instantiate(_PowerupPrefab[randomPowerUp], randomSpawn, Quaternion.identity);
+                Instantiate(_powerupPrefab[randomPowerUp], randomSpawn, Quaternion.identity);
             }
         }
     }
@@ -104,11 +112,11 @@ public class SpawnManager : MonoBehaviour
         while (_stopSpawning == false)
         {
             Vector3 randomSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 8, 0);
-            int randomRarePowerUp = Random.Range(0, 21);
+            int randomRarePowerUp = Random.Range(0, 26);
             yield return new WaitForSeconds(Random.Range(3, 8));
-            if (randomRarePowerUp < 5)
+            if (randomRarePowerUp < _rarePowerupPrefab.Length)
             {
-                Instantiate(_RarePowerupPrefab[randomRarePowerUp], randomSpawn, Quaternion.identity);
+                Instantiate(_rarePowerupPrefab[randomRarePowerUp], randomSpawn, Quaternion.identity);
             }
         }
     }
